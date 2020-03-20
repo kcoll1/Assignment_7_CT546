@@ -6,9 +6,10 @@ namespace Assignment7
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            
             BusinessLogic businessLogic = new BusinessLogic();
-
+            Console.WriteLine("PARKING PERMIT SYSTEM");
+            Console.WriteLine("----------------------");
             businessLogic.CalculateNumberOfParkingPermits();
             
         }

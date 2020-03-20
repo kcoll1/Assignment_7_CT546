@@ -8,7 +8,7 @@ namespace Assignment7
     public class BusinessLogic
     {
         
-        public DataLayer db = new DataLayer(Constants.connectionString);
+        DataLayer db = new DataLayer(Constants.connectionString);
         List<Vehicle> vehicles = new List<Vehicle>();
 
         public void CalculateNumberOfParkingPermits() {
@@ -18,7 +18,7 @@ namespace Assignment7
                  try
                 {
                     OleDbDataReader readData = db.CreateCommand(Constants.queryReturnAllVehicles);
-                
+
                     //While there is data to read in the DB
                     while (readData.Read())
                     {
@@ -33,14 +33,20 @@ namespace Assignment7
                             Permit_Duration = int.Parse(readData[6].ToString()),
 
                         });
-                        
+
                     }
+                    Console.WriteLine();
                     foreach (Vehicle v in vehicles)
                     {
                         if (CalculateExpiryDate(v.Permit_Start, v.Permit_Duration) == false)
                         {
-                            Console.WriteLine(v.Owner.ToString());
+                            Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   - LAPSED PARKING PERMIT");
                         }
+                        else
+                        {
+                            Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   - VALID PARKING PERMIT");
+                        }
+
                     }
 
                     //Close the DataReader object
