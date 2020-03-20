@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Assignment7
 {
+    //Constants class for the Connection String and Query Strings
     public class Constants
     {
         public const string connectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\karlc\H.Dip_Software_Design_Development\.NET Programming\Assignment 7\Assignment7.mdb";

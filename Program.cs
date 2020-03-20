@@ -10,7 +10,7 @@ namespace Assignment7
             BusinessLogic businessLogic = new BusinessLogic();
             Console.WriteLine("PARKING PERMIT SYSTEM");
             Console.WriteLine("----------------------");
-            businessLogic.CalculateNumberOfParkingPermits();
+            businessLogic.OverallValidOrLapsedParkingPermits();
             
         }
     }
