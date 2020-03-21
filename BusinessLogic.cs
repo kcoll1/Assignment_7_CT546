@@ -8,86 +8,64 @@ namespace Assignment7
     public class BusinessLogic
     {
 
-        //Instance of the DataLayer class to create and initiate the connection to the DB
-        DataLayer db = new DataLayer(Constants.connectionString);
-
         //Create a list of vehicles to store values from the DB table
-        List<Vehicle> vehicles = new List<Vehicle>();
+        List<Vehicle> _vehicles = new List<Vehicle>();
+        
+        //Variables for Valid and Lapsed Count
+        int ValidCount = 0;
+        int LapsedCount = 0;
 
         //Method to Show and Calculate the Valid and Lapsed Parking Permits
         public void OverallValidOrLapsedParkingPermits() {
 
-            //Variables for Valid and Lapsed Count
-            int Valid = 0;
-            int Lapsed = 0;
-
             //Using the Connection created earlier
-            using (db) {
+            using (DataLayer _dataLayer = new DataLayer()) {
 
-                 try
-                  {
-                    OleDbDataReader readData = db.CreateCommand(Constants.queryReturnAllVehicles);
-
-                    //While there is another record to read in the DB
-                    while (readData.Read())
-                    {
-                        //Add a new vehicle to the vehicles array from the OleDbDataReader object
-                        vehicles.Add(new Vehicle()
-                        {
-                            Id = readData[0].ToString(),
-                            Model = readData[1].ToString(),
-                            Reg = readData[2].ToString(),
-                            Owner = readData[3].ToString(),
-                            Apartment = readData[4].ToString(),
-                            Permit_Start = DateTime.Parse(readData[5].ToString()),
-                            Permit_Duration = int.Parse(readData[6].ToString()),
-
-                        });
-
-                    }
-                    Console.WriteLine();
-                    //For Each vehicle read into the Vehicles array, 
-                    // call the Method to check if their Parking Permit is Lapsed or Valid, Increment each counter according to the result and Display
-                    foreach (Vehicle v in vehicles)
-                    {
-                        if (CalculateIfParkingPermitExpired(v.Permit_Start, v.Permit_Duration) == false)
-                        { 
-                            Lapsed++;
-                            Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   - LAPSED PARKING PERMIT");
-                        }
-                        else
-                        {
-                            Valid++;
-                            Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   - VALID PARKING PERMIT");
-                        }
-
-                    }
-
-
-                     //Close the DataReader object
-                    readData.Close();
-                    Console.WriteLine();
-
-                    //Print to Console the overall number of Lapsed and Valid Parking Permits
-                    Console.WriteLine("Overall Number of Lapsed Parking Permits: " + Lapsed);
-                    Console.WriteLine("Overall Number of Valid Parking Permits: " + Valid);
-                    
-                }
-                catch (Exception ex)
+                try
                 {
-                    Console.WriteLine(ex.Message);
-                }
+                    //Store the returned Vehicles returned from the Access DB by DataLayer in the list vehicles declared above
+                    _vehicles = _dataLayer.ReturnVehicles(Constants.queryReturnAllVehicles);
 
+                }
+                catch
+                {
+                    Console.WriteLine("Issue When returning the Vehicles.");
+                }
+                Console.WriteLine();
+                //For Each vehicle read into the Vehicles array, 
+                // call the Method to check if their Parking Permit is Lapsed or Valid, Increment each counter according to the result and Display
+                foreach (Vehicle v in _vehicles)
+                {
+                    if (CalculateIfParkingPermitExpired(v.Permit_Start, v.Permit_Duration) == false)
+                    {
+                        LapsedCount++;
+                        Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date:" + v.Permit_Start.ToString() + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - LAPSED PARKING PERMIT");
+                    }
+                    else
+                    {
+                        ValidCount++;
+                        Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date:" + v.Permit_Start.ToString() + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - VALID PARKING PERMIT");
+                    }
+
+                }
+                Console.WriteLine();
+
+                //Print to Console the overall number of Lapsed and Valid Parking Permits
+                Console.WriteLine("Overall Number of Lapsed Parking Permits: " + LapsedCount);
+                Console.WriteLine("Overall Number of Valid Parking Permits: " + ValidCount);
+
+                Console.WriteLine();
 
             }
-
-            
+               
         }
 
         //Method to Calculate the Expiry Date of the Parking Permit and Return false if Parking is Lapsed
         public bool CalculateIfParkingPermitExpired(DateTime startDate, int Duration)
         {
+            //Calculate the Expiry Date of the Parking Permit
             DateTime ExpiryDate = startDate.AddMonths(Duration);
+
             if (ExpiryDate < DateTime.Now)
             {
                 return false;
@@ -97,6 +75,84 @@ namespace Assignment7
                 return true;
             }
 
+        }
+
+        /* Method to return the records from the Database and iterate through the Vehicle items, calls the below
+        CalculateFeeOfLapsed Method to Determine the Fee due based on how long the permit is out of Date (3 bands of Fee: 20.00, 60.00, 100.00)
+        */    
+        public void DetermineFeesOnLapsedPermits()
+        {
+            using (DataLayer _dataLayer = new DataLayer())
+            {
+
+                try
+                {
+                    _vehicles = _dataLayer.ReturnVehicles(Constants.queryReturnAllVehicles);
+
+                }
+                catch 
+                {
+                    Console.WriteLine("Issue When returning the Vehicles.");
+
+                }
+
+                foreach (Vehicle v in _vehicles)
+                {
+                    if (CalculateIfParkingPermitExpired(v.Permit_Start, v.Permit_Duration) == false)
+                    {
+                        
+
+                        Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date:" + v.Permit_Start.ToString() + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - Fees Due: \u20AC" + CalculateFeeOfLapsed(v.Permit_Start, v.Permit_Duration));
+
+
+                    }
+                }
+            }
+            Console.WriteLine();
+        }
+
+        //Method to calculate the Fee from Lapsed Permit based on the Length of Days that the Permit has been expired
+        public double CalculateFeeOfLapsed(DateTime startDate, int Duration) {
+
+            //Calculate the Expiry Date of the Parking Permit
+            DateTime ExpiryDate = startDate.AddMonths(Duration);
+
+            //Subtract the Expiry Date from Todays Date and place result in a TimeSpan Object
+            TimeSpan ts = DateTime.Now.Subtract(ExpiryDate);
+
+            //Define the TimeSpan Objects to compare against
+            TimeSpan minorFeeTimeSpan = new TimeSpan(15, 0, 0, 0);
+            TimeSpan midFeeTimeSpan = new TimeSpan(30, 0, 0, 0);
+            TimeSpan maxFeeTimeSpan  = new TimeSpan(50, 0, 0, 0);
+
+            //Define the double Fee amounts
+            double minorFee = 20.00;
+            double midFee = 60.00;
+            double maxFee = 100.00;
+
+            //If statements to determine if the users permit warrants a minor, mid-size or Maximum fee, returns the Fee
+            if (ts < maxFeeTimeSpan)
+            {
+                if (ts < midFeeTimeSpan)
+                {
+                    if (ts < minorFeeTimeSpan)
+                    {
+                        return  minorFee;
+                    }
+                    else
+                    {
+                        return minorFee;
+                    }
+                }
+                else
+                {
+                    return midFee;
+                }
+            }
+            else 
+            {
+                return maxFee;           
+            }
         }
     }
 }
