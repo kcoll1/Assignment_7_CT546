@@ -21,7 +21,7 @@ namespace Assignment7
 
         }
 
-        //Method which takes in a Query for the DB, creates an OleDbCommand and returns Data in an OleDbDataReader
+        //Method which takes in a Query for the DB as a Parameter, creates an OleDbCommand, an OleDbDataReader and reads the values from the Access DB and returns a List of Vehicle Objects
         public List<Vehicle> ReturnVehicles(string DbQuery)
         {
 

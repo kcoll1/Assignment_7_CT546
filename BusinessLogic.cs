@@ -16,7 +16,7 @@ namespace Assignment7
         int LapsedCount = 0;
 
         //Method to Show and Calculate the Valid and Lapsed Parking Permits
-        public void OverallValidOrLapsedParkingPermits() {
+        public void DisplayOverallValidOrLapsedParkingPermits() {
 
             //Using the Connection created earlier
             using (DataLayer _dataLayer = new DataLayer()) {
@@ -80,7 +80,7 @@ namespace Assignment7
         /* Method to return the records from the Database and iterate through the Vehicle items, calls the below
         CalculateFeeOfLapsed Method to Determine the Fee due based on how long the permit is out of Date (3 bands of Fee: 20.00, 60.00, 100.00)
         */    
-        public void DetermineFeesOnLapsedPermits()
+        public void DisplayFeesOnLapsedPermits()
         {
             using (DataLayer _dataLayer = new DataLayer())
             {
