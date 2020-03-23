@@ -7,35 +7,31 @@ namespace Assignment7
 {
     public class BusinessLogic
     {
-
         //Create a list of vehicles to store values from the DB table
-        List<Vehicle> _vehicles = new List<Vehicle>();
-        
+        private List<Vehicle> _vehicles = new List<Vehicle>();
+        private DataLayer _dataLayer;
+
+        public BusinessLogic(DataLayer dataLayer)
+        {
+            _dataLayer = dataLayer;
+
+        }
+
         //Variables for Valid and Lapsed Count
         int ValidCount = 0;
         int LapsedCount = 0;
 
         //Method to Show and Calculate the Valid and Lapsed Parking Permits
-        public void DisplayOverallValidOrLapsedParkingPermits() {
+        public void DisplayOverallValidOrLapsedParkingPermits()
+        {
+            _dataLayer.ConnectToDatabase(Constants.connectionString);
+            _vehicles = _dataLayer.ReturnAllVehicles();
 
-            //Using the Connection created earlier
-            using (DataLayer _dataLayer = new DataLayer()) {
-
-                try
-                {
-                    //Store the returned Vehicles returned from the Access DB by DataLayer in the list vehicles declared above
-                    _vehicles = _dataLayer.ReturnVehicles(Constants.queryReturnAllVehicles);
-
-                }
-                catch
-                {
-                    Console.WriteLine("Issue When returning the Vehicles.");
-                }
-                Console.WriteLine();
+            Console.WriteLine();
                 //For Each vehicle read into the Vehicles array, 
                 // call the Method to check if their Parking Permit is Lapsed or Valid, Increment each counter according to the result and Display
-                foreach (Vehicle v in _vehicles)
-                {
+           foreach (Vehicle v in _vehicles)
+           {
                     if (CalculateIfParkingPermitExpired(v.Permit_Start, v.Permit_Duration) == false)
                     {
                         LapsedCount++;
@@ -47,7 +43,7 @@ namespace Assignment7
                         Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date:" + v.Permit_Start.ToString() + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - VALID PARKING PERMIT");
                     }
 
-                }
+           }
                 Console.WriteLine();
 
                 //Print to Console the overall number of Lapsed and Valid Parking Permits
@@ -55,9 +51,6 @@ namespace Assignment7
                 Console.WriteLine("Overall Number of Valid Parking Permits: " + ValidCount);
 
                 Console.WriteLine();
-
-            }
-               
         }
 
         //Method to Calculate the Expiry Date of the Parking Permit and Return false if Parking is Lapsed
@@ -79,31 +72,32 @@ namespace Assignment7
 
         /* Method to return the records from the Database and iterate through the Vehicle items, calls the below
         CalculateFeeOfLapsed Method to Determine the Fee due based on how long the permit is out of Date (3 bands of Fee: 20.00, 60.00, 100.00)
-        */    
+        */
         public void DisplayFeesOnLapsedPermits()
         {
             using (DataLayer _dataLayer = new DataLayer())
             {
 
-                try
-                {
-                    _vehicles = _dataLayer.ReturnVehicles(Constants.queryReturnAllVehicles);
-
+                try 
+                { 
+                _dataLayer.ConnectToDatabase(Constants.connectionString);
+                _vehicles = _dataLayer.ReturnAllVehicles();
                 }
-                catch 
+                catch (Exception ex)
                 {
-                    Console.WriteLine("Issue When returning the Vehicles.");
-
+                    Console.WriteLine(ex.Message);
                 }
+
 
                 foreach (Vehicle v in _vehicles)
                 {
                     if (CalculateIfParkingPermitExpired(v.Permit_Start, v.Permit_Duration) == false)
                     {
-                        
+                        double LapsedFee = CalculateFeeOfLapsed(v.Permit_Start, v.Permit_Duration);
 
+                      //  _dataLayer.InsertFeesToDatabase(Constants.queryInsertVehicle + LapsedFee + Constants.endInsert);
                         Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date:" + v.Permit_Start.ToString() + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - Fees Due: \u20AC" + CalculateFeeOfLapsed(v.Permit_Start, v.Permit_Duration));
-
+                        
 
                     }
                 }
@@ -112,7 +106,8 @@ namespace Assignment7
         }
 
         //Method to calculate the Fee from Lapsed Permit based on the Length of Days that the Permit has been expired
-        public double CalculateFeeOfLapsed(DateTime startDate, int Duration) {
+        public double CalculateFeeOfLapsed(DateTime startDate, int Duration)
+        {
 
             //Calculate the Expiry Date of the Parking Permit
             DateTime ExpiryDate = startDate.AddMonths(Duration);
@@ -123,7 +118,7 @@ namespace Assignment7
             //Define the TimeSpan Objects to compare against
             TimeSpan minorFeeTimeSpan = new TimeSpan(15, 0, 0, 0);
             TimeSpan midFeeTimeSpan = new TimeSpan(30, 0, 0, 0);
-            TimeSpan maxFeeTimeSpan  = new TimeSpan(50, 0, 0, 0);
+            TimeSpan maxFeeTimeSpan = new TimeSpan(50, 0, 0, 0);
 
             //Define the double Fee amounts
             double minorFee = 20.00;
@@ -137,7 +132,7 @@ namespace Assignment7
                 {
                     if (ts < minorFeeTimeSpan)
                     {
-                        return  minorFee;
+                        return minorFee;
                     }
                     else
                     {
@@ -149,10 +144,62 @@ namespace Assignment7
                     return midFee;
                 }
             }
-            else 
+            else
             {
-                return maxFee;           
+                return maxFee;
             }
         }
+
+        public void DisplayPremiumOnLapsed()
+        {
+
+            using (DataLayer _dataLayer = new DataLayer())
+            {
+
+                try
+                {
+                    _dataLayer.ConnectToDatabase(Constants.connectionString);
+                    _vehicles = _dataLayer.ReturnAllVehicles();
+
+                }
+                catch
+                {
+                    Console.WriteLine("Issue When returning the Vehicles.");
+
+                }
+
+                foreach (Vehicle v in _vehicles)
+                {
+                    
+                    if (CalculateIfParkingPermitExpired(v.Permit_Start, v.Permit_Duration) == false)
+                    {
+
+
+                        Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date:" + v.Permit_Start.ToString() + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - Calculated Repayment Amount including 10% Premium Due: \u20AC" + CalculateRepaymentFeeOnLapsed(v.Permit_Duration).ToString("F"));
+
+
+                    }
+                }
+            }
+            Console.WriteLine();
+        }
+
+        public double CalculateRepaymentFeeOnLapsed(int Duration)
+        {
+            //Rate per month for a Permit
+            double ratePerMonth = 10.00;
+
+            double AmountWithoutPremium = 0.00;
+            double AmountIncludingPremium = 0.00;
+
+            //Calulate how much the customer paid for their most recent Parking Permit
+            AmountWithoutPremium = (ratePerMonth * Duration);
+
+            //Calulate how much the customer would need to pay for the same term again including a 10% premium for lapsed parking permit
+            AmountIncludingPremium = AmountWithoutPremium += (AmountWithoutPremium * 10 / 100);
+            return AmountIncludingPremium;      
+        }
+
+
     }
 }

@@ -11,7 +11,8 @@ namespace Assignment7
             Console.OutputEncoding = Encoding.UTF8;
 
             //Instantiate the Business Logic class
-            BusinessLogic businessLogic = new BusinessLogic();
+            DataLayer dataLayer = new DataLayer();
+            BusinessLogic businessLogic = new BusinessLogic(dataLayer);
 
             Console.WriteLine("PARKING PERMIT SYSTEM");
             Console.WriteLine("----------------------");
@@ -26,7 +27,10 @@ namespace Assignment7
 
             //Call the Display Fees on Lapsed Permits Method
             businessLogic.DisplayFeesOnLapsedPermits();
-            
+            Console.WriteLine();
+            Console.WriteLine("List of Students with Lapsed Permits, Vehicle Details and the Repayment Fees Due Inc. 10% Premium:");
+            Console.WriteLine();
+            businessLogic.DisplayPremiumOnLapsed();
         }
     }
 }
