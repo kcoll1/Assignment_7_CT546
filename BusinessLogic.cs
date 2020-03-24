@@ -73,7 +73,7 @@ namespace Assignment7
         /* Method to return the records from the Database and iterate through the Vehicle items, calls the below
         CalculateFeeOfLapsed Method to Determine the Fee due based on how long the permit is out of Date (3 bands of Fee: 20.00, 60.00, 100.00)
         */
-        public void DisplayFeesOnLapsedPermits()
+        public void UpdateFeesOnLapsedPermitsAndDisplay()
         {
             using (DataLayer _dataLayer = new DataLayer())
             {
@@ -95,8 +95,8 @@ namespace Assignment7
                     {
                         double LapsedFee = CalculateFeeOfLapsed(v.Permit_Start, v.Permit_Duration);
 
-                      //  _dataLayer.InsertFeesToDatabase(Constants.queryInsertVehicle + LapsedFee + Constants.endInsert);
-                        Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date:" + v.Permit_Start.ToString() + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - Fees Due: \u20AC" + CalculateFeeOfLapsed(v.Permit_Start, v.Permit_Duration));
+                        _dataLayer.UpdateFeesInDatabase((int.Parse(v.Id)), LapsedFee);
+                        Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date:" + v.Permit_Start.ToString() + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - Fees Due: \u20AC" + LapsedFee);
                         
 
                     }
@@ -150,7 +150,7 @@ namespace Assignment7
             }
         }
 
-        public void DisplayPremiumOnLapsed()
+        public void UpdatePremiumOnLapsedAndDisplay()
         {
 
             using (DataLayer _dataLayer = new DataLayer())
@@ -173,9 +173,9 @@ namespace Assignment7
                     
                     if (CalculateIfParkingPermitExpired(v.Permit_Start, v.Permit_Duration) == false)
                     {
-
-
-                        Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date:" + v.Permit_Start.ToString() + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - Calculated Repayment Amount including 10% Premium Due: \u20AC" + CalculateRepaymentFeeOnLapsed(v.Permit_Duration).ToString("F"));
+                        double RepaymentAmount = double.Parse(CalculateRepaymentFeeOnLapsed(v.Permit_Duration).ToString("F"));
+                        _dataLayer.UpdatePaymentAmountInDatabase((int.Parse(v.Id)), RepaymentAmount);
+                        Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date:" + v.Permit_Start.ToString() + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - Calculated Repayment Amount including 10% Premium Due: \u20AC" + RepaymentAmount);
 
 
                     }

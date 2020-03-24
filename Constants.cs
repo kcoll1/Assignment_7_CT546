@@ -20,7 +20,19 @@ namespace Assignment7
         {
             return "INSERT INTO Vehicles (ID, Vehicle_Model, Registration, Owner, Apartment, Permit_Start, Permit_Duration_Months, Fees_Due, Repayment_Amount) values('" + vehicle.Id + "','" + vehicle.Model + "','" + vehicle.Reg + "','" + vehicle.Owner + "','" + vehicle.Apartment.ToString() + "','" + vehicle.Permit_Start.ToString() + "','" + vehicle.Permit_Duration.ToString() + "','" + vehicle.Fees_Due.ToString() + "','" + vehicle.Repayment_Amount.ToString() + "')";
         }
-       
+
+        public static string UpdateFeesInDatabaseString(int vehicleId, double feesDue)
+        {
+            return "UPDATE Vehicles SET Fees_Due =" + feesDue + " WHERE ID =" + vehicleId;
+          
+        }
+
+        public static string UpdatePaymentAmountInDatabaseString(int vehicleId, double RepaymentAmount)
+        {
+            return "UPDATE Vehicles SET Repayment_Amount =" + RepaymentAmount + " WHERE ID =" + vehicleId;
+           
+        }
+
 
     }
 }

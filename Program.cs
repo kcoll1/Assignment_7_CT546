@@ -26,11 +26,11 @@ namespace Assignment7
             Console.WriteLine();
 
             //Call the Display Fees on Lapsed Permits Method
-            businessLogic.DisplayFeesOnLapsedPermits();
+            businessLogic.UpdateFeesOnLapsedPermitsAndDisplay();
             Console.WriteLine();
             Console.WriteLine("List of Students with Lapsed Permits, Vehicle Details and the Repayment Fees Due Inc. 10% Premium:");
             Console.WriteLine();
-            businessLogic.DisplayPremiumOnLapsed();
+            businessLogic.UpdatePremiumOnLapsedAndDisplay();
         }
     }
 }

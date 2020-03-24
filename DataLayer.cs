@@ -121,20 +121,27 @@ namespace Assignment7
                         Console.WriteLine(ex.Message);
                     }
                 }
+
         }
 
-        //public void InsertFeesToDatabase(string DbQuery)
-        //{
+        public void UpdateFeesInDatabase(int Id, double feesDue)
+        {
 
-        //    //  OleDbDataReader readData = _dataCreateCommand(Constants.queryReturnAllVehicles);
+            OleDbCommand command = new OleDbCommand(Constants.UpdateFeesInDatabaseString(Id, feesDue), DataLayer._dbConnection);
 
-        //    OleDbCommand command = new OleDbCommand(DbQuery, DataLayer._dbConnection);
-
-        //    command.ExecuteNonQuery();
+            command.ExecuteNonQuery();
 
 
-        //}
+        }
 
+        public void UpdatePaymentAmountInDatabase(int Id, double PaymentAmount)
+        {
+
+            OleDbCommand command = new OleDbCommand(Constants.UpdatePaymentAmountInDatabaseString(Id, PaymentAmount), DataLayer._dbConnection);
+
+            command.ExecuteNonQuery();
+
+        }
 
     }
 }
