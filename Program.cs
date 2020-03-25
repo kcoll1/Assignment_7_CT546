@@ -31,6 +31,15 @@ namespace Assignment7
             Console.WriteLine("List of Students with Lapsed Permits, Vehicle Details and the Repayment Fees Due Inc. 10% Premium:");
             Console.WriteLine();
             businessLogic.UpdatePremiumOnLapsedAndDisplay();
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("REALLOCATE PARKING PERMIT TO A NEW VEHICLE:");
+            Console.WriteLine("--------------------------------------------");
+            Console.WriteLine();
+            businessLogic.ReallocatePermitToSameUsersCar();
+            Console.WriteLine();
+            //Call the Display Valid or Lapsed Parking Permit Method Again
+            Console.WriteLine();
         }
     }
 }

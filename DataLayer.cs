@@ -24,8 +24,6 @@ namespace Assignment7
         public List<Vehicle> ReturnAllVehicles()
         {
 
-          //  OleDbDataReader readData = _dataCreateCommand(Constants.queryReturnAllVehicles);
-
             OleDbCommand command = new OleDbCommand(Constants.queryReturnAllVehicles, DataLayer._dbConnection);
 
             OleDbDataReader readData = command.ExecuteReader();
@@ -54,8 +52,6 @@ namespace Assignment7
 
         public Vehicle GetVehicleById(int vehicleId)
         {
-
-            //  OleDbDataReader readData = _dataCreateCommand(Constants.queryReturnAllVehicles);
 
             OleDbCommand command = new OleDbCommand(Constants.GetSpecificVehicle(vehicleId), DataLayer._dbConnection);
 
@@ -121,6 +117,26 @@ namespace Assignment7
                         Console.WriteLine(ex.Message);
                     }
                 }
+
+        }
+
+        public void DeleteAVehicle(int vehicleID)
+        {
+
+            using (OleDbCommand command = new OleDbCommand(Constants.DeleteSpecificVehicleInDatabaseString(vehicleID), _dbConnection))
+            {
+
+                try
+                {
+                    //Execute the SQL statement
+                    command.ExecuteNonQuery();
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
 
         }
 

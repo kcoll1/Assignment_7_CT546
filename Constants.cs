@@ -33,6 +33,12 @@ namespace Assignment7
            
         }
 
+        public static string DeleteSpecificVehicleInDatabaseString(int vehicleId)
+        {
+            return "DELETE From Vehicles WHERE ID =" + vehicleId;
+
+        }
+
 
     }
 }

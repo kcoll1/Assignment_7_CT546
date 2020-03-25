@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.OleDb;
+using System.Linq;
 using System.Text;
 
 namespace Assignment7
@@ -35,12 +36,12 @@ namespace Assignment7
                     if (CalculateIfParkingPermitExpired(v.Permit_Start, v.Permit_Duration) == false)
                     {
                         LapsedCount++;
-                        Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date:" + v.Permit_Start.ToString() + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - LAPSED PARKING PERMIT");
+                        Console.WriteLine(v.Id.ToString() + "   " + v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date: " + v.Permit_Start.ToString("dd/MM/yyyy") + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - LAPSED PARKING PERMIT");
                     }
                     else
                     {
                         ValidCount++;
-                        Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date:" + v.Permit_Start.ToString() + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - VALID PARKING PERMIT");
+                        Console.WriteLine(v.Id.ToString() + "   " + v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date: " + v.Permit_Start.ToString("dd/MM/yyyy") + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - VALID PARKING PERMIT");
                     }
 
            }
@@ -96,9 +97,8 @@ namespace Assignment7
                         double LapsedFee = CalculateFeeOfLapsed(v.Permit_Start, v.Permit_Duration);
 
                         _dataLayer.UpdateFeesInDatabase((int.Parse(v.Id)), LapsedFee);
-                        Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date:" + v.Permit_Start.ToString() + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - Fees Due: \u20AC" + LapsedFee);
+                        Console.WriteLine(v.Id.ToString() + "   " + v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date: " + v.Permit_Start.ToString("dd/MM/yyyy") + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - Fees Due: \u20AC" + LapsedFee);
                         
-
                     }
                 }
             }
@@ -175,7 +175,7 @@ namespace Assignment7
                     {
                         double RepaymentAmount = double.Parse(CalculateRepaymentFeeOnLapsed(v.Permit_Duration).ToString("F"));
                         _dataLayer.UpdatePaymentAmountInDatabase((int.Parse(v.Id)), RepaymentAmount);
-                        Console.WriteLine(v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date:" + v.Permit_Start.ToString() + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - Calculated Repayment Amount including 10% Premium Due: \u20AC" + RepaymentAmount);
+                        Console.WriteLine(v.Id.ToString() + "   " + v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date: " + v.Permit_Start.ToString("dd/MM/yyyy") + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - Calculated Repayment Amount including 10% Premium Due: \u20AC" + RepaymentAmount);
 
 
                     }
@@ -189,8 +189,8 @@ namespace Assignment7
             //Rate per month for a Permit
             double ratePerMonth = 10.00;
 
-            double AmountWithoutPremium = 0.00;
-            double AmountIncludingPremium = 0.00;
+            double AmountWithoutPremium;
+            double AmountIncludingPremium;
 
             //Calulate how much the customer paid for their most recent Parking Permit
             AmountWithoutPremium = (ratePerMonth * Duration);
@@ -200,6 +200,76 @@ namespace Assignment7
             return AmountIncludingPremium;      
         }
 
+        public void ReallocatePermitToSameUsersCar()
+        {
+            //Allow a permit to be reallocated to a different car owned by the same user
+            using (DataLayer _dataLayer = new DataLayer())
+            {
+
+                try
+                {
+                    _dataLayer.ConnectToDatabase(Constants.connectionString);
+                    _vehicles = _dataLayer.ReturnAllVehicles();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+
+                Console.WriteLine();
+                Console.WriteLine("List of Students with Valid Permits that can be transferred:");
+                Console.WriteLine();
+                foreach (Vehicle v in _vehicles)
+                {
+                    if (CalculateIfParkingPermitExpired(v.Permit_Start, v.Permit_Duration) == true)
+                    {
+
+                        Console.WriteLine(v.Id.ToString() + "   " + v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date: " + v.Permit_Start.ToString("dd/MM/yyyy") + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months");
+
+                    }
+                }
+            }
+                Console.WriteLine();
+                Console.WriteLine("Please Enter the ID of the Users Parking Permit that you would like to transfer:");
+                int userIDForPermitReallocation = Convert.ToInt32(Console.ReadLine());
+
+            //_dataLayer.GetVehicleById(userIDForPermitReallocation);
+            using (DataLayer _dataLayer = new DataLayer())
+            {
+                _dataLayer.ConnectToDatabase(Constants.connectionString);
+                Vehicle vehicleForPermitTransfer = _dataLayer.GetVehicleById(userIDForPermitReallocation);
+
+                Console.WriteLine("Please Enter the Model of the New Vehicle the Parking Permit will be transferred to:");
+                string NewVehicleModel= Console.ReadLine();
+
+                Console.WriteLine("Please Enter the Registration of the New Vehicle the Parking Permit will be transferred to:");
+                string NewVehicleReg = Console.ReadLine();
+                Console.WriteLine();
+
+                vehicleForPermitTransfer.Model = NewVehicleModel;
+                vehicleForPermitTransfer.Reg = NewVehicleReg;
+
+                _dataLayer.DeleteAVehicle(Convert.ToInt32(vehicleForPermitTransfer.Id));
+                _dataLayer.AddVehicle(vehicleForPermitTransfer);
+
+                List<Vehicle> NewVehicles = _dataLayer.ReturnAllVehicles();
+                List<Vehicle> SortedList = NewVehicles.OrderBy(newVec => newVec.Id).ToList();
+                Console.WriteLine();
+                Console.WriteLine("List of Students with Valid Permits and Vehicle Details:");
+                Console.WriteLine();
+                foreach (Vehicle v in SortedList)
+                {
+                    //  _dataLayer.UpdateFeesInDatabase((int.Parse(v.Id)), LapsedFee);
+                    Console.WriteLine(v.Id.ToString() + "   " + v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date: " + v.Permit_Start.ToString("dd/MM/yyyy") + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months");
+
+                }
+            
+            }
+
+            Console.WriteLine();
+
+        }
 
     }
+
 }
