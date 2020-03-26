@@ -9,7 +9,7 @@ namespace Assignment7
         public Vehicle() { 
         
         }
-         public Vehicle(int Id, string model, string reg, string owner, string apartment, DateTime permitStart, int permitDuration, double fees, double repaymentAmount) {
+        public Vehicle(int Id, string model, string reg, string owner, string apartment, DateTime permitStart, int permitDuration, double fees, double repaymentAmount) {
             
             this.Id = Id.ToString();
             this.Model = model;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.OleDb;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Assignment7
         //Create a list of vehicles to store values from the DB table
         private List<Vehicle> _vehicles = new List<Vehicle>();
         
-        private DataLayer _dataLayer;
+        private readonly DataLayer _dataLayer;
 
         //Create Constructor of BusinessLogic Class that takes a DataLayer object as a Parameter
         public BusinessLogic(DataLayer dataLayer)
@@ -21,8 +22,8 @@ namespace Assignment7
         }
 
         //Variables for Valid and Lapsed Count
-        int ValidCount = 0;
-        int LapsedCount = 0;
+        private int _validCount = 0;
+        private int _lapsedCount = 0;
 
         //Method to Show and Calculate the Valid and Lapsed Parking Permits
         public void DisplayOverallValidOrLapsedParkingPermits()
@@ -49,12 +50,12 @@ namespace Assignment7
            {
                     if (CalculateIfParkingPermitExpired(v.Permit_Start, v.Permit_Duration) == false)
                     {
-                        LapsedCount++;
+                        _lapsedCount++;
                         Console.WriteLine(v.Id.ToString() + "   " + v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date: " + v.Permit_Start.ToString("dd/MM/yyyy") + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - LAPSED PARKING PERMIT");
                     }
                     else
                     {
-                        ValidCount++;
+                        _validCount++;
                         Console.WriteLine(v.Id.ToString() + "   " + v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date: " + v.Permit_Start.ToString("dd/MM/yyyy") + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - VALID PARKING PERMIT");
                     }
 
@@ -62,8 +63,8 @@ namespace Assignment7
                 Console.WriteLine();
 
                 //Print to Console the overall number of Lapsed and Valid Parking Permits
-                Console.WriteLine("Overall Number of Lapsed Parking Permits: " + LapsedCount);
-                Console.WriteLine("Overall Number of Valid Parking Permits: " + ValidCount);
+                Console.WriteLine("Overall Number of Lapsed Parking Permits: " + _lapsedCount);
+                Console.WriteLine("Overall Number of Valid Parking Permits: " + _validCount);
 
                 Console.WriteLine();
         }
@@ -111,10 +112,10 @@ namespace Assignment7
                     {
                         //Call Method to calculate the Fees Due on the Lapsed permits
                         double LapsedFee = CalculateFeeOfLapsed(v.Permit_Start, v.Permit_Duration);
-
+                        DateTime ExpiryDate = v.Permit_Start.AddMonths(v.Permit_Duration);
                         //Call DataLayer class method to Update the Fees_Due column in the Database based on the given ID and print out this detail
                         _dataLayer.UpdateFeesInDatabase((int.Parse(v.Id)), LapsedFee);
-                        Console.WriteLine(v.Id.ToString() + "   " + v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date: " + v.Permit_Start.ToString("dd/MM/yyyy") + "   Permit Duration:" + v.Permit_Duration.ToString() + " Months   - Fees Due: \u20AC" + LapsedFee);
+                        Console.WriteLine(v.Id.ToString() + "   " + v.Owner.ToString() + "   " + v.Model.ToString() + "   " + v.Reg.ToString() + "   Apartment No." + v.Apartment.ToString() + "   Permit Start Date: " + v.Permit_Start.ToString("dd/MM/yyyy") + "   Permit Duration: " + v.Permit_Duration.ToString() + " Months   Permit End Date: " + ExpiryDate.ToString("dd/MM/yyyy") + " - Fees Due: \u20AC" + LapsedFee);
                         
                     }
                 
@@ -199,7 +200,6 @@ namespace Assignment7
             Console.WriteLine();
         }
 
-        
         public static double CalculateRepaymentFeeOnLapsed(int Duration)
         {
             
@@ -249,14 +249,32 @@ namespace Assignment7
                     }
                 }
             
+            //Create an index variable and an Empty Arraylist to hold the ids of the Lapsed Vehicles   
+            int index = 0;
+            ArrayList idList = new ArrayList();
 
-                //Read in from the Console the ID of the record which has the valid parking permit for transfer and store this in a variable
-                Console.WriteLine();
-                Console.WriteLine("Please Enter the ID of the Users Parking Permit that you would like to transfer:");
-                int userIDForPermitReallocation = Convert.ToInt32(Console.ReadLine());
+            //Read in the Ids to the Array list with the foreach loop and increment the index
+            foreach (Vehicle v in _vehicles) 
+                {
+                    idList.Add(int.Parse(v.Id));
+                    index++;
+                }
 
-                //Return the vehicle which has the Parking Permit for Reallocation
-                Vehicle vehicleForPermitTransfer = _dataLayer.GetVehicleById(userIDForPermitReallocation);
+            //Read in from the Console the ID of the record which has the valid parking permit for transfer and store this in a variable
+            Console.WriteLine();
+            Console.WriteLine("Please Enter the ID of the Users Parking Permit that you would like to transfer:");
+            int userIDForPermitReallocation = Convert.ToInt32(Console.ReadLine());
+
+            //While the the List of Ids does not contain the value the user entered give error and make user re-renter the Id of the record for transfer
+            while (!idList.Contains(userIDForPermitReallocation))
+            {
+                Console.WriteLine("Not a valid entry, Please Enter a valid ID from the above list:");
+                userIDForPermitReallocation = Convert.ToInt32(Console.ReadLine());
+
+            }
+           
+            //Return the vehicle which has the Parking Permit for Reallocation
+            Vehicle vehicleForPermitTransfer = _dataLayer.GetVehicleById(userIDForPermitReallocation);
 
                 //Read in from the Console the Model of the Vehicle the Parking Permit will be transferred to
                 Console.WriteLine("Please Enter the Model of the New Vehicle the Parking Permit will be transferred to:");
