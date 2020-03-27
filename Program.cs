@@ -11,7 +11,7 @@ namespace Assignment7
             Console.OutputEncoding = Encoding.UTF8;
 
             //Instantiate the Business Logic class
-            DataLayer dataLayer = new DataLayer();
+            IDataLayer dataLayer = new DataLayer();
             BusinessLogic businessLogic = new BusinessLogic(dataLayer);
 
             Console.WriteLine("PARKING PERMIT SYSTEM");

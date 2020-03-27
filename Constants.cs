@@ -18,9 +18,6 @@ namespace Assignment7
         public static TimeSpan minorFeeTimeSpan = new TimeSpan(15, 0, 0, 0);
         public static TimeSpan midFeeTimeSpan = new TimeSpan(30, 0, 0, 0);
         public static TimeSpan maxFeeTimeSpan = new TimeSpan(50, 0, 0, 0);
-        //  public const string queryUpdateVehicle = "UPDATE Vehicles";
-
-        //Method to return the Query String for getting a specific vehicle when given a vehicle ID
         public static string GetSpecificVehicle(int vehicleId) {
             return "SELECT * from Vehicles WHERE ID = " + vehicleId;
         }
@@ -28,7 +25,9 @@ namespace Assignment7
         //Method to return the Query String for inserting a vehicle to the DB when given the vehicle object
         public static string InsertQueryString(Vehicle vehicle)
         {
-            return "INSERT INTO Vehicles (ID, Vehicle_Model, Registration, Owner, Apartment, Permit_Start, Permit_Duration_Months, Fees_Due, Repayment_Amount) values('" + vehicle.Id + "','" + vehicle.Model + "','" + vehicle.Reg + "','" + vehicle.Owner + "','" + vehicle.Apartment.ToString() + "','" + vehicle.Permit_Start.ToString() + "','" + vehicle.Permit_Duration.ToString() + "','" + vehicle.Fees_Due.ToString() + "','" + vehicle.Repayment_Amount.ToString() + "')";
+            return "INSERT INTO Vehicles (ID, Vehicle_Model, Registration, Owner, Apartment, Permit_Start, Permit_Duration_Months, Fees_Due, Repayment_Amount) " +
+                "values('" + vehicle.Id + "','" + vehicle.Model + "','" + vehicle.Reg + "','" + vehicle.Owner + "','" + vehicle.Apartment.ToString() + "','" + 
+                vehicle.Permit_Start.ToString() + "','" + vehicle.Permit_Duration.ToString() + "','" + vehicle.Fees_Due.ToString() + "','" + vehicle.Repayment_Amount.ToString() + "')";
         }
 
         //Method to return the Query String for updating the Fees_Due column in the DB when given a vehicle ID and the Fees_Due

@@ -5,8 +5,8 @@ using System.Data.OleDb;
 
 namespace Assignment7
 {
-    //Data Layer to Manage the OleDbConnection used by the Program
-    public class DataLayer : IDisposable
+    //Data Layer to Manage the OleDbConnection used by the Program Implments IDisposable, IDataLayer interface
+    public class DataLayer : IDataLayer, IDisposable
     {
         //Create the OleDbConnection
         private static OleDbConnection _dbConnection;
@@ -92,7 +92,7 @@ namespace Assignment7
             _dbConnection.Open();
             IsConnected = true;
         }
-        //Method to dispose of the Connection, as the Data Layer Class implements IDisposable
+        //Method to dispose of the Connection, mandatory as the Data Layer Class implements IDisposable
         public void Dispose() {
             _dbConnection.Dispose();
             IsConnected = false;
@@ -120,7 +120,7 @@ namespace Assignment7
         //Method to add a vehicle to the DB when passed a vehicle object
         public void AddVehicle(Vehicle vehicle)
         {
-
+            //Create the Ole Db command, pass the Insert Query from Constants class, taking parameter of vehicle
             OleDbCommand command = new OleDbCommand(Constants.InsertQueryString(vehicle), _dbConnection);
                 
                     try
@@ -139,7 +139,7 @@ namespace Assignment7
         //Delete a vehicle in the DB when passed a vehicle ID
         public void DeleteAVehicle(int vehicleID)
         {
-
+            //Create the Ole Db command, pass the Delete Query from Constants class, taking parameter of vehicleID
             OleDbCommand command = new OleDbCommand(Constants.DeleteSpecificVehicleInDatabaseString(vehicleID), _dbConnection);
             
 
@@ -160,7 +160,7 @@ namespace Assignment7
         //Update the Fees_Due column in the DB when passed an ID and Fees Due
         public void UpdateFeesInDatabase(int Id, double feesDue)
         {
-
+            //Create the Ole Db command, pass the Update Fees Query from Constants class, taking parameters of Id and Fees_Due
             OleDbCommand command = new OleDbCommand(Constants.UpdateFeesInDatabaseString(Id, feesDue), DataLayer._dbConnection);
 
             try
@@ -175,9 +175,10 @@ namespace Assignment7
             }
         }
 
+        //Method to Update the Payment Amountin the DB takes in an ID and a Payment Amount
         public void UpdatePaymentAmountInDatabase(int Id, double PaymentAmount)
         {
-
+            //Create the Ole Db command, pass the Update Payment Amount Query from Constants class, taking parameters of Id and Fees_Due
             OleDbCommand command = new OleDbCommand(Constants.UpdatePaymentAmountInDatabaseString(Id, PaymentAmount), DataLayer._dbConnection);
             try
             {
